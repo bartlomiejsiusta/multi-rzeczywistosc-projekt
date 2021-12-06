@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class CommunicationButtons : MonoBehaviour
 {
@@ -9,7 +10,7 @@ public class CommunicationButtons : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(getRequest("http:///www.yoururl.com"));
+        //StartCoroutine(getRequest("http:///www.yoururl.com"));
     }
 
     // Update is called once per frame
@@ -18,7 +19,7 @@ public class CommunicationButtons : MonoBehaviour
         
     }
 
-    public SendCoordinatesToServer()
+    public void SendCoordinatesToServer()
     {
         Debug.Log("Sending coordinates");
 
@@ -27,7 +28,7 @@ public class CommunicationButtons : MonoBehaviour
         form.AddField("Game Name", "Mario Kart");
 
         UnityWebRequest uwr = UnityWebRequest.Post(COORDINATES_URL_ENDPOINT, form);
-        yield return uwr.SendWebRequest();
+        var result = uwr.SendWebRequest();
 
         if (uwr.isNetworkError)
         {
