@@ -1,16 +1,16 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
 public class CommunicationButtons : MonoBehaviour
 {
-    public const string COORDINATES_URL_ENDPOINT = "";
+    public const string COORDINATES_URL_ENDPOINT = "https://localhost:44386/Game";
 
     // Start is called before the first frame update
     void Start()
     {
-        //StartCoroutine(getRequest("http:///www.yoururl.com"));
+        //StartCoroutine(SendCoordinatesToServer());
     }
 
     // Update is called once per frame
@@ -19,24 +19,35 @@ public class CommunicationButtons : MonoBehaviour
         
     }
 
-    public void SendCoordinatesToServer()
+    /// <summary>
+    /// Funkcja wywoływana przez przycisk
+    /// </summary>
+    public void SendCoordinatesToServer_Event()
+    {
+        StartCoroutine(SendCoordinatesToServer());
+    }
+
+    /// <summary>
+    /// Wysłane danych do serwera
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator SendCoordinatesToServer()
     {
         Debug.Log("Sending coordinates");
 
         WWWForm form = new WWWForm();
-        form.AddField("myField", "myData");
-        form.AddField("Game Name", "Mario Kart");
+        form.AddField("coordinate", "A2");
 
         UnityWebRequest uwr = UnityWebRequest.Post(COORDINATES_URL_ENDPOINT, form);
-        var result = uwr.SendWebRequest();
+        yield return uwr.SendWebRequest();
 
-        if (uwr.isNetworkError)
+        if (uwr.result != UnityWebRequest.Result.Success)
         {
-            Debug.Log("Error While Sending: " + uwr.error);
+            Debug.Log("Error: " + uwr.error);
         }
         else
         {
-            Debug.Log("Received: " + uwr.downloadHandler.text);
+            Debug.Log("Result: " + uwr.downloadHandler.text);
         }
     }
 }

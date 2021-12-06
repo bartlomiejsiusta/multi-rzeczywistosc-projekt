@@ -75,3 +75,6 @@ crashlytics-build.properties
 Unity/Library
 Server/CommunicationServer/CommunicationServer/obj
 Unity/Logs
+bin
+Unity/Temp
+Unity/obj
