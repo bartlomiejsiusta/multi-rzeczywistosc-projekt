@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CommunicationServer.Exceptions;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +41,7 @@ namespace CommunicationServer.Controllers
             {
                 newRandomId = Tools.Tools.RandomString(10);
                 attempts--;
-            } 
+            }
             while (attempts > 0 && !ActiveGames.TryAdd(newRandomId, new GameState()));
 
             return Ok(newRandomId);
@@ -62,9 +63,21 @@ namespace CommunicationServer.Controllers
         }
 
         [HttpPost("PostCoordinates")]
-        public ActionResult PostCoordinates([FromForm] string coordinate)
+        public ActionResult PostCoordinates([FromForm] string coordinate, [FromForm] string gameId, [FromForm] Guid playerId)
         {
-            return Ok(coordinate);
+            try
+            {
+                var game = ActiveGames[gameId];
+                var type = game.GetPlayerType(playerId);
+
+                game.PerformMove(type, coordinate);
+            }
+            catch (GameException e)
+            {
+                return BadRequest(e.Message);
+            }
+
+            return Ok();
         }
     }
 }
