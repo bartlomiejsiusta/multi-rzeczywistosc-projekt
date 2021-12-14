@@ -145,6 +145,8 @@ public class CommunicationButtons : MonoBehaviour
 
         WWWForm form = new WWWForm();
         form.AddField("coordinate", "A2");
+        form.AddField("gameId", ActiveGameName);
+        form.AddField("playerId", PlayerId.ToString());
 
         UnityWebRequest uwr = UnityWebRequest.Post(COORDINATES_URL_ENDPOINT, form);
         yield return uwr.SendWebRequest();
