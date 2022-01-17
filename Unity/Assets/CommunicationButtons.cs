@@ -55,6 +55,12 @@ public class CommunicationButtons : MonoBehaviour
         StartCoroutine(EnterExistingGame("ABCDE10"));
     }
 
+    public void ExitGame_Event()
+    {
+        Application.Quit();
+        Debug.Log("Exiting application");
+    }
+
     /// <summary>
     /// Dołączenie do gry na serwerze
     /// </summary>
