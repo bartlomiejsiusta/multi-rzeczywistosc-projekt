@@ -16,6 +16,39 @@ namespace CommunicationServer.Controllers
         public static Dictionary<Guid, PlayerState> ActivePlayers { get; set; } = new Dictionary<Guid, PlayerState>();
         public static Dictionary<string, GameState> ActiveGames { get; set; } = new Dictionary<string, GameState>();
 
+        public static bool AppSetup = false;
+
+        public GameController()
+        {
+            // ustanowienie przykładowej gry
+            if (!AppSetup)
+            {
+                ActivePlayers.Add(Guid.Parse("c3784240-bbeb-417f-a413-2cf11b758ae7"), new PlayerState());
+                ActivePlayers.Add(Guid.Parse("a29b5c23-793d-4d6d-ab8f-a789579dcbb5"), new PlayerState());
+                GameState game = new GameState();
+                ActiveGames.Add("abc", game);
+
+                game.AddPlayer("c3784240-bbeb-417f-a413-2cf11b758ae7");
+                game.AddPlayer("a29b5c23-793d-4d6d-ab8f-a789579dcbb5");
+
+                game.PlaceShip(PlayerType.Guest, "A2", 2);
+                game.PlaceShip(PlayerType.Guest, "B3", 2);
+                game.PlaceShip(PlayerType.Guest, "C4", 3);
+                game.PlaceShip(PlayerType.Guest, "D5", 3);
+                game.PlaceShip(PlayerType.Guest, "E6", 4);
+                game.PlaceShip(PlayerType.Guest, "F6", 4);
+
+                game.PlaceShip(PlayerType.Host, "A2", 2);
+                game.PlaceShip(PlayerType.Host, "B3", 2);
+                game.PlaceShip(PlayerType.Host, "C4", 3);
+                game.PlaceShip(PlayerType.Host, "D5", 3);
+                game.PlaceShip(PlayerType.Host, "E6", 4);
+                game.PlaceShip(PlayerType.Host, "F6", 4);
+
+                AppSetup = true;
+            }
+        }
+
         /// <summary>
         /// Rejestracja nowego gracza
         /// </summary>
