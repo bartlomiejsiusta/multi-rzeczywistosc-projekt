@@ -193,6 +193,12 @@ namespace CommunicationServer.Controllers
                     // Guest
                     PlaceShipForUser(GuestShipsToPlace, GuestMap, shipSize, secondCoord, firstCoord);
                 }
+
+
+                if (CanProceedToNextState(HostShipsToPlace) && CanProceedToNextState(GuestShipsToPlace))
+                {
+                    CurrentGameState = GameStates.HostTurn;
+                }
             }
             else
             {
@@ -247,6 +253,17 @@ namespace CommunicationServer.Controllers
             }
 
             return true;
+        }
+
+        public bool CanProceedToNextState(Dictionary<int, int> availableOptions)
+        {
+            int sum = 0;
+            foreach(var o in availableOptions)
+            {
+                sum += o.Value;
+            }
+
+            return sum == 0;
         }
 
         public PlayerType GetPlayerType(Guid playerId)
