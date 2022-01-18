@@ -6,8 +6,8 @@ namespace CommunicationServer.Controllers
 {
     public class GameState
     {
-        public Guid HostPlayerId { get; set; }
-        public Guid GuestPlayerId { get; set; }
+        public Guid? HostPlayerId { get; set; }
+        public Guid? GuestPlayerId { get; set; }
 
         public GameStates CurrentGameState { get; set; }
 
@@ -33,8 +33,23 @@ namespace CommunicationServer.Controllers
             Wreck
         }
 
-        StateOfCoordinate[,] HostMap = new StateOfCoordinate[MAP_SIZE, MAP_SIZE];
-        StateOfCoordinate[,] GuestMap = new StateOfCoordinate[MAP_SIZE, MAP_SIZE];
+        public StateOfCoordinate[][] HostMap;
+        public StateOfCoordinate[][] GuestMap;
+
+        public GameState()
+        {
+            HostMap = new StateOfCoordinate[MAP_SIZE][];
+            for (var h = 0; h < MAP_SIZE; h++)
+            {
+                HostMap[h] = new StateOfCoordinate[MAP_SIZE];
+            }
+
+            GuestMap = new StateOfCoordinate[MAP_SIZE][];
+            for (var h = 0; h < MAP_SIZE; h++)
+            {
+                GuestMap[h] = new StateOfCoordinate[MAP_SIZE];
+            }
+        }
 
         private int _movesLeft = MAP_SIZE * MAP_SIZE;
         public int MovesLeft
@@ -45,15 +60,28 @@ namespace CommunicationServer.Controllers
             }
         }
 
-
-        public void AddGuestPlayer(string playerId)
+        public void AddPlayer(string playerId)
         {
-            if (GuestPlayerId != null)
+            if (HostPlayerId == null)
             {
-                throw new GameException("Max number of players exceeded");
+                HostPlayerId = Guid.Parse(playerId);
             }
+            else
+            {
+                if (HostPlayerId == Guid.Parse(playerId))
+                {
+                    throw new GameException("This player is already added");
+                }
 
-            GuestPlayerId = playerId;
+                if (GuestPlayerId == null)
+                {
+                    GuestPlayerId = Guid.Parse(playerId);
+                }
+                else
+                {
+                    throw new GameException("Max number of players exceeded");
+                }
+            }
         }
 
         public static (char, int) CoordinatesConverter(string coordinates)
@@ -88,15 +116,15 @@ namespace CommunicationServer.Controllers
             return upper - 'A';
         }
 
-        private void Shoot(StateOfCoordinate[,] map, int firstCoord, int secondCoord)
+        private void Shoot(StateOfCoordinate[][] map, int firstCoord, int secondCoord)
         {
-            if (map[firstCoord, secondCoord] == StateOfCoordinate.Empty)
+            if (map[firstCoord][secondCoord] == StateOfCoordinate.Empty)
             {
-                map[firstCoord, secondCoord] = StateOfCoordinate.EmptyShot;
+                map[firstCoord][secondCoord] = StateOfCoordinate.EmptyShot;
             }
-            else if (map[firstCoord, secondCoord] == StateOfCoordinate.Ship)
+            else if (map[firstCoord][secondCoord] == StateOfCoordinate.Ship)
             {
-                map[firstCoord, secondCoord] = StateOfCoordinate.Wreck;
+                map[firstCoord][secondCoord] = StateOfCoordinate.Wreck;
             }
             else
             {
@@ -130,11 +158,11 @@ namespace CommunicationServer.Controllers
 
         public PlayerType GetPlayerType(Guid playerId)
         {
-            if(playerId == HostPlayerId)
+            if (playerId == HostPlayerId)
             {
                 return PlayerType.Host;
             }
-            else if(playerId == GuestPlayerId)
+            else if (playerId == GuestPlayerId)
             {
                 return PlayerType.Guest;
             }

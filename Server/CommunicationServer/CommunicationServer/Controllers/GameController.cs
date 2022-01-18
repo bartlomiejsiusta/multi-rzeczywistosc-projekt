@@ -1,9 +1,11 @@
 ﻿using CommunicationServer.Exceptions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static CommunicationServer.Controllers.GameState;
 
 namespace CommunicationServer.Controllers
 {
@@ -14,6 +16,13 @@ namespace CommunicationServer.Controllers
         public static Dictionary<Guid, PlayerState> ActivePlayers { get; set; } = new Dictionary<Guid, PlayerState>();
         public static Dictionary<string, GameState> ActiveGames { get; set; } = new Dictionary<string, GameState>();
 
+        /// <summary>
+        /// Rejestracja nowego gracza
+        /// </summary>
+        /// <param name="claimedId">Guid jako string</param>
+        /// <response code="200">Gracz dodany</response>
+        /// <returns></returns>
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpPost("Register")]
         public ActionResult RegisterPlayer([FromForm] string claimedId)
         {
@@ -31,6 +40,11 @@ namespace CommunicationServer.Controllers
             }
         }
 
+        /// <summary>
+        /// Utworzenie nowej gry
+        /// </summary>
+        /// <response code="200">Zwraca identyfikator utworzonej gry</response>
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpPost("Create")]
         public ActionResult Create()
         {
@@ -47,6 +61,15 @@ namespace CommunicationServer.Controllers
             return Ok(newRandomId);
         }
 
+        /// <summary>
+        /// Dołączenie do istniejącej gry. Tylko jeden gracz może dołączyć do gry.
+        /// </summary>
+        /// <param name="playerId">Guid dołączającego gracza</param>
+        /// <param name="gameId">Identyfikator gry</param>
+        /// <response code="200">Identyfikator gry (w przypadku powodzenia)</response>
+        /// <response code="400">Gra nie istnieje lub nie można dodać gracza (bo przekroczono maksymalną ilość graczy (2))</response>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost("Enter")]
         public ActionResult Enter([FromForm] string playerId, [FromForm] string gameId)
         {
@@ -54,7 +77,14 @@ namespace CommunicationServer.Controllers
             {
                 GameState game = ActiveGames[gameId];
 
-                game.AddGuestPlayer(playerId);
+                try
+                {
+                    game.AddPlayer(playerId);
+                }
+                catch (GameException e)
+                {
+                    return BadRequest($"Problem z dodaniem gracza: {e.Message}");
+                }
 
                 return Ok(gameId);
             }
@@ -62,6 +92,16 @@ namespace CommunicationServer.Controllers
             return BadRequest("Game doesn't exist");
         }
 
+        /// <summary>
+        /// Ruch gracza, wykonanie strzału w wybrane pole.
+        /// </summary>
+        /// <param name="coordinate">Format koordynatów [A-Z][\d+] (litera a potem liczba). Przykładowo: A10</param>
+        /// <param name="gameId">Identyfikator gry</param>
+        /// <param name="playerId">Guid gracza wykonującego ruch</param>
+        /// <response code="400">Nieprawidłowy ruch</response>
+        /// <response code="200">Ruch zapisany</response>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost("PostCoordinates")]
         public ActionResult PostCoordinates([FromForm] string coordinate, [FromForm] string gameId, [FromForm] Guid playerId)
         {
@@ -78,6 +118,27 @@ namespace CommunicationServer.Controllers
             }
 
             return Ok();
+        }
+
+        /// <summary>
+        /// Zwraca dwie tablice stanu gry (plansza gracza 1. i plansza gracza 2.)
+        /// </summary>
+        /// <param name="gameId">Identyfikator gry</param>
+        /// <response code="200">Trójwymiarowa tablica. Pierwszy to rodzaj plaszy: 
+        /// 0 - plansza gracza `host`, 1- plansza gracza `guest`, oraz koordynaty x i y wybranej planszy.
+        /// Przykładowo: Tablica[0][1][2] to stan pola na planszy gracza `host` na pozycji x = 1 i pozycji y = 2</response>
+        /// <returns></returns>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpGet("MapState")]
+        public ActionResult GetMapState(string gameId)
+        {
+            var game = ActiveGames[gameId];
+
+            return Ok(new StateOfCoordinate[][][]
+            {
+                game.HostMap,
+                game.GuestMap
+            });
         }
     }
 }
