@@ -78,3 +78,5 @@ Unity/Logs
 bin
 Unity/Temp
 Unity/obj
+/Server/CommunicationServer/CommunicationServer/Properties/PublishProfiles
+/Server/CommunicationServer/CommunicationServer/Properties/ServiceDependencies

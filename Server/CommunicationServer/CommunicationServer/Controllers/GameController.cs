@@ -62,7 +62,7 @@ namespace CommunicationServer.Controllers
         }
 
         /// <summary>
-        /// Dołączenie do istniejącej gry. Tylko jeden gracz może dołączyć do gry.
+        /// Dołączenie do istniejącej gry. Dwóch graczy może dołączyć do gry.
         /// </summary>
         /// <param name="playerId">Guid dołączającego gracza</param>
         /// <param name="gameId">Identyfikator gry</param>
@@ -93,9 +93,37 @@ namespace CommunicationServer.Controllers
         }
 
         /// <summary>
+        /// Ustawia statek na planszy. Statki będą ustawiane na planszy wartykalnie/pionowo. Podana wartość `coordinate` to dolna część statku
+        /// </summary>
+        /// <param name="coordinate">Format koordynatów [A-Z][\d+] (litera a potem liczba). Przykładowo: A10 albo B2</param>
+        /// <param name="gameId">Identyfikator gry</param>
+        /// <param name="playerId">Guid gracza wykonującego ruch</param>
+        /// <param name="shipSize">Wielkość statku (2, 3 albo 4)</param>
+        /// <returns></returns>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpPost("PlaceShip")]
+        public ActionResult PlaceShip([FromForm] string coordinate, [FromForm] string gameId, [FromForm] Guid playerId, [FromForm] int shipSize)
+        {
+            try
+            {
+                var game = ActiveGames[gameId];
+                var type = game.GetPlayerType(playerId);
+
+                game.PlaceShip(type, coordinate, shipSize);
+            }
+            catch (GameException e)
+            {
+                return BadRequest(e.Message);
+            }
+
+            return Ok();
+        }
+
+        /// <summary>
         /// Ruch gracza, wykonanie strzału w wybrane pole.
         /// </summary>
-        /// <param name="coordinate">Format koordynatów [A-Z][\d+] (litera a potem liczba). Przykładowo: A10</param>
+        /// <param name="coordinate">Format koordynatów [A-Z][\d+] (litera a potem liczba). Przykładowo: A10 albo B2</param>
         /// <param name="gameId">Identyfikator gry</param>
         /// <param name="playerId">Guid gracza wykonującego ruch</param>
         /// <response code="400">Nieprawidłowy ruch</response>

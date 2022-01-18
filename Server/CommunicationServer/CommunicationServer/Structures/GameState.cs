@@ -1,5 +1,6 @@
 ﻿using CommunicationServer.Exceptions;
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace CommunicationServer.Controllers
@@ -9,12 +10,13 @@ namespace CommunicationServer.Controllers
         public Guid? HostPlayerId { get; set; }
         public Guid? GuestPlayerId { get; set; }
 
-        public GameStates CurrentGameState { get; set; }
+        public GameStates CurrentGameState { get; set; } = GameStates.PlacingShips;
 
         public const int MAP_SIZE = 10;
 
         public enum GameStates
         {
+            PlacingShips,
             HostTurn,
             GuestTurn
         }
@@ -27,14 +29,32 @@ namespace CommunicationServer.Controllers
 
         public enum StateOfCoordinate
         {
-            Empty,
-            EmptyShot,
-            Ship,
-            Wreck
+            Empty = 0,
+            EmptyShot = 1,
+            Ship = 2,
+            Wreck = 3
         }
 
+        /// <summary>
+        /// Pierwszy wymiar to X, drugi - Y
+        /// </summary>
         public StateOfCoordinate[][] HostMap;
+        /// <summary>
+        /// Pierwszy wymiar to X, drugi - Y
+        /// </summary>
         public StateOfCoordinate[][] GuestMap;
+
+        public Dictionary<int, int> HostShipsToPlace = new Dictionary<int, int> {
+            {2, 2 },
+            {3, 2 },
+            {4, 2 },
+        };
+
+        public Dictionary<int, int> GuestShipsToPlace = new Dictionary<int, int> {
+            {2, 2 },
+            {3, 2 },
+            {4, 2 },
+        };
 
         public GameState()
         {
@@ -154,6 +174,79 @@ namespace CommunicationServer.Controllers
             {
                 throw new GameException("Not your turn");
             }
+        }
+
+        public void PlaceShip(PlayerType playerType, string coordinates, int shipSize)
+        {
+            (char letter, int secondCoord) = CoordinatesConverter(coordinates);
+
+            int firstCoord = LetterToNumberEquivalent(letter);
+
+            if (CurrentGameState == GameStates.PlacingShips)
+            {
+                if (playerType == PlayerType.Host)
+                {
+                    PlaceShipForUser(HostShipsToPlace, HostMap, shipSize, secondCoord, firstCoord);
+                }
+                else
+                {
+                    // Guest
+                    PlaceShipForUser(GuestShipsToPlace, GuestMap, shipSize, secondCoord, firstCoord);
+                }
+            }
+            else
+            {
+                throw new GameException("Game is not in PlacingShips state");
+            }
+        }
+
+        private static void PlaceShipForUser(Dictionary<int,int> availableOptions, StateOfCoordinate[][] map, int shipSize, int secondCoord, int firstCoord)
+        {
+            if (availableOptions.TryGetValue(shipSize, out int remaining))
+            {
+                if (remaining == 0)
+                {
+                    throw new GameException($"All ships with size {shipSize} are placed.");
+                }
+
+                if (TryPlaceShipOnMap(map, (firstCoord, secondCoord), shipSize))
+                {
+                    remaining--;
+                    availableOptions[shipSize] = remaining;
+                }
+                else
+                {
+                    throw new GameException($"Placing ship refused. Ship collision or out of map.");
+                }
+            }
+            else
+            {
+                throw new GameException("Illegal ship size. 2, 3 and 4 available");
+            }
+        }
+
+        public static bool TryPlaceShipOnMap(StateOfCoordinate[][] map, (int x, int y) coords, int shipSize)
+        {
+
+            for (var movement = 0; movement < shipSize; movement++)
+            {
+                if (coords.y + movement < 0 || coords.y + movement > MAP_SIZE - 1)
+                {
+                    return false;
+                }
+
+                if (map[coords.x][coords.y + movement] != StateOfCoordinate.Empty)
+                {
+                    return false;
+                }
+            }
+
+            for (var movement = 0; movement < shipSize; movement++)
+            {
+                map[coords.x][coords.y + movement] = StateOfCoordinate.Ship;
+            }
+
+            return true;
         }
 
         public PlayerType GetPlayerType(Guid playerId)
