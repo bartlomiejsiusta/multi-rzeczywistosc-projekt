@@ -201,5 +201,22 @@ namespace CommunicationServer.Controllers
                 game.GuestMap
             });
         }
+
+        /// <summary>
+        /// Zwraca stan gry. Możliwe są trzy stany:
+        /// PlacingShips = 0 (ustawianie statków),
+        /// HostTurn = 1 (gra, ruch gracza 1),
+        /// GuestTurn = 2 (gra, ruch gracza 2)
+        /// </summary>
+        /// <param name="gameId">Identyfikator gry</param>
+        /// <returns></returns>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpGet("CurrentGameState")]
+        public ActionResult CurrentGameState(string gameId)
+        {
+            var game = ActiveGames[gameId];
+
+            return Ok(game.CurrentGameState);
+        }
     }
 }
