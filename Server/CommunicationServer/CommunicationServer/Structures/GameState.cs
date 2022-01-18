@@ -18,7 +18,9 @@ namespace CommunicationServer.Controllers
         {
             PlacingShips,
             HostTurn,
-            GuestTurn
+            GuestTurn,
+            EndGameHostWon,
+            EndGameGuestWon
         }
 
         public enum PlayerType
@@ -174,6 +176,8 @@ namespace CommunicationServer.Controllers
             {
                 throw new GameException("Not your turn");
             }
+
+            CheckIfSomeoneWon();
         }
 
         public void PlaceShip(PlayerType playerType, string coordinates, int shipSize)
@@ -195,7 +199,7 @@ namespace CommunicationServer.Controllers
                 }
 
 
-                if (CanProceedToNextState(HostShipsToPlace) && CanProceedToNextState(GuestShipsToPlace))
+                if (CanProceedFromShipPlacementState(HostShipsToPlace) && CanProceedFromShipPlacementState(GuestShipsToPlace))
                 {
                     CurrentGameState = GameStates.HostTurn;
                 }
@@ -206,7 +210,7 @@ namespace CommunicationServer.Controllers
             }
         }
 
-        private static void PlaceShipForUser(Dictionary<int,int> availableOptions, StateOfCoordinate[][] map, int shipSize, int secondCoord, int firstCoord)
+        private static void PlaceShipForUser(Dictionary<int, int> availableOptions, StateOfCoordinate[][] map, int shipSize, int secondCoord, int firstCoord)
         {
             if (availableOptions.TryGetValue(shipSize, out int remaining))
             {
@@ -255,15 +259,49 @@ namespace CommunicationServer.Controllers
             return true;
         }
 
-        public bool CanProceedToNextState(Dictionary<int, int> availableOptions)
+        public bool CanProceedFromShipPlacementState(Dictionary<int, int> availableOptions)
         {
             int sum = 0;
-            foreach(var o in availableOptions)
+            foreach (var o in availableOptions)
             {
                 sum += o.Value;
             }
 
             return sum == 0;
+        }
+
+        public void CheckIfSomeoneWon()
+        {
+            if (CurrentGameState == GameStates.GuestTurn || CurrentGameState == GameStates.HostTurn)
+            {
+                bool hostsShips = AnyAliveShips(HostMap);
+                bool guestsShips = AnyAliveShips(GuestMap);
+
+                if (hostsShips && !guestsShips)
+                {
+                    CurrentGameState = GameStates.EndGameHostWon;
+                }
+                else if (!hostsShips && guestsShips)
+                {
+                    CurrentGameState = GameStates.EndGameHostWon;
+                }
+            }
+        }
+
+        public bool AnyAliveShips(StateOfCoordinate[][] map)
+        {
+            for (var x = 0; x < map.Length; x++)
+            {
+                for (var y = 0; y < map[x].Length; y++)
+                {
+                    if (map[x][y] == StateOfCoordinate.Ship)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         public PlayerType GetPlayerType(Guid playerId)
