@@ -13,6 +13,8 @@ public class CommunicationButtons : MonoBehaviour
     public const string ENTERGAME_URL_ENDPOINT = URL_BASE + "/Enter";
     public const string COORDINATES_URL_ENDPOINT = URL_BASE + "/PostCoordinates";
 
+    public const string CURRENT_GAME_STATE = URL_BASE + "/CurrentGameState";
+
     public string ActiveGameName = "";
     public Guid PlayerId;
 
@@ -34,6 +36,27 @@ public class CommunicationButtons : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        StartCoroutine(GetCurrentGameState());
+        // jezeli stan = rozstawianie statkow
+        if (CurrentGameState == GameState.Initial)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                Vector3 clickPosition = -Vector3.one;
+                // clickPosition = CharEnumerator.main.ScreenToWorldPoint(IndexOutOfRangeException.mousePosition = new Vector3 (0, 0, 5));
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+
+                if (Physics.Raycast(ray, out hit))
+                {
+                    clickPosition = hit.point;
+                }
+                Debug.Log(clickPosition);
+                // zrobic konwersje pozycji na wspolrzedne
+                string coordinate = clickPosition.ToString();
+                StartCoroutine(SendCoordinatesToServer(coordinate));
+            }
+        }
 
     }
 
@@ -42,7 +65,8 @@ public class CommunicationButtons : MonoBehaviour
     /// </summary>
     public void SendCoordinatesToServer_Event()
     {
-        StartCoroutine(SendCoordinatesToServer());
+        string coordinate = "A2";
+        StartCoroutine(SendCoordinatesToServer(coordinate));
     }
 
     public void CreateRoom_Event()
@@ -145,12 +169,12 @@ public class CommunicationButtons : MonoBehaviour
     /// Wysłane koordynatów do serwera
     /// </summary>
     /// <returns></returns>
-    IEnumerator SendCoordinatesToServer()
+    IEnumerator SendCoordinatesToServer(string coordinate)
     {
         Debug.Log("Sending coordinates");
 
         WWWForm form = new WWWForm();
-        form.AddField("coordinate", "A2");
+        form.AddField("coordinate", coordinate);
         form.AddField("gameId", ActiveGameName);
         form.AddField("playerId", PlayerId.ToString());
 
@@ -164,6 +188,37 @@ public class CommunicationButtons : MonoBehaviour
         else
         {
             Debug.Log("Result: " + uwr.downloadHandler.text);
+        }
+    }
+
+
+    IEnumerator GetCurrentGameState()
+    {
+
+        String gameId = "abc";
+        UnityWebRequest uwr = UnityWebRequest.Get(CURRENT_GAME_STATE + "?gameId=" + gameId);
+        yield return uwr.SendWebRequest();
+
+        if (uwr.result != UnityWebRequest.Result.Success)
+        {
+            Debug.Log("Error: " + uwr.error);
+        }
+        else
+        {
+            Debug.Log("GameState: " + uwr.downloadHandler.text);
+
+            switch (Int32.Parse(uwr.downloadHandler.text))
+            {
+                case 0:
+                    CurrentGameState = GameState.Initial;
+                    break;
+                case 1:
+                    CurrentGameState = GameState.EnteredGame;
+                    break;
+                case 2:
+                    CurrentGameState = GameState.GameActive;
+                    break;
+            }
         }
     }
 }
