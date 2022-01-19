@@ -206,7 +206,9 @@ namespace CommunicationServer.Controllers
         /// Zwraca stan gry. Możliwe są trzy stany:
         /// PlacingShips = 0 (ustawianie statków),
         /// HostTurn = 1 (gra, ruch gracza 1),
-        /// GuestTurn = 2 (gra, ruch gracza 2)
+        /// GuestTurn = 2 (gra, ruch gracza 2),
+        /// EndGameHostWon = 3,
+        /// EndGameGuestWon = 4
         /// </summary>
         /// <param name="gameId">Identyfikator gry</param>
         /// <returns></returns>
