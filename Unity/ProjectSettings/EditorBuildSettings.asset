@@ -8,4 +8,5 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/AR-scene.unity
     guid: 16ba6c1748db6334384dfe9c031c1e31
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 65cc98c59d042b441a457ccddd562885, type: 2}

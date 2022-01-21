@@ -4,16 +4,21 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using System;
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
+using TMPro;
 
 public class CommunicationButtons : MonoBehaviour
 {
-    public const string URL_BASE = "https://localhost:44386/Game";
+    public const string URL_BASE = "http://shipsgameserver.azurewebsites.net/Game";
     public const string REGISTER_URL_ENDPOINT = URL_BASE + "/Register";
     public const string CREATEGAME_URL_ENDPOINT = URL_BASE + "/Create";
     public const string ENTERGAME_URL_ENDPOINT = URL_BASE + "/Enter";
     public const string COORDINATES_URL_ENDPOINT = URL_BASE + "/PostCoordinates";
 
     public const string CURRENT_GAME_STATE = URL_BASE + "/CurrentGameState";
+    
+    [SerializeField] private TMP_InputField inputGameNameComponent;
 
     public string ActiveGameName = "";
     public Guid PlayerId;
@@ -36,25 +41,24 @@ public class CommunicationButtons : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        StartCoroutine(GetCurrentGameState());
+        // StartCoroutine(GetCurrentGameState());
         // jezeli stan = rozstawianie statkow
         if (CurrentGameState == GameState.Initial)
         {
             if (Input.GetMouseButtonDown(0))
             {
-                Vector3 clickPosition = -Vector3.one;
+                String clickPosition = "";
                 // clickPosition = CharEnumerator.main.ScreenToWorldPoint(IndexOutOfRangeException.mousePosition = new Vector3 (0, 0, 5));
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hit;
 
-                if (Physics.Raycast(ray, out hit))
+                if (Physics.Raycast(ray, out hit, 100.0f))
                 {
-                    clickPosition = hit.point;
+                    clickPosition = hit.collider.gameObject.name;
                 }
+
                 Debug.Log(clickPosition);
-                // zrobic konwersje pozycji na wspolrzedne
-                string coordinate = clickPosition.ToString();
-                StartCoroutine(SendCoordinatesToServer(coordinate));
+                // StartCoroutine(SendCoordinatesToServer(clickPosition));
             }
         }
 
@@ -76,7 +80,8 @@ public class CommunicationButtons : MonoBehaviour
 
     public void EnterRoom_Event()
     {
-        StartCoroutine(EnterExistingGame("ABCDE10"));
+        var passedGameName = inputGameNameComponent.text;
+        StartCoroutine(EnterExistingGame(passedGameName));
     }
 
     public void ExitGame_Event()
@@ -84,6 +89,12 @@ public class CommunicationButtons : MonoBehaviour
         Application.Quit();
         Debug.Log("Exiting application");
     }
+
+
+    //public void GetCurrentGameState_Event()
+    //{
+    //    StartCoroutine(GetCurrentGameState());
+    //}
 
     /// <summary>
     /// Dołączenie do gry na serwerze
@@ -133,6 +144,10 @@ public class CommunicationButtons : MonoBehaviour
             ActiveGameName = uwr.downloadHandler.text;
             CurrentGameState = GameState.EnteredGame;
 
+            GameManager.Instance.gameName = ActiveGameName;
+            
+            SceneManager.LoadScene("AR-scene");
+
             Debug.Log("Result: " + ActiveGameName);
         }
     }
@@ -160,6 +175,8 @@ public class CommunicationButtons : MonoBehaviour
         {
             ActiveGameName = uwr.downloadHandler.text;
             CurrentGameState = GameState.GameActive;
+            GameManager.Instance.gameName = ActiveGameName;
+            SceneManager.LoadScene("AR-scene");
 
             Debug.Log("Result: " + ActiveGameName);
         }
@@ -192,33 +209,33 @@ public class CommunicationButtons : MonoBehaviour
     }
 
 
-    IEnumerator GetCurrentGameState()
-    {
+    //IEnumerator GetCurrentGameState()
+    //{
 
-        String gameId = "abc";
-        UnityWebRequest uwr = UnityWebRequest.Get(CURRENT_GAME_STATE + "?gameId=" + gameId);
-        yield return uwr.SendWebRequest();
+    //    String gameId = GameManager.Instance.gameName;
+    //    UnityWebRequest uwr = UnityWebRequest.Get(CURRENT_GAME_STATE + "?gameId=" + gameId);
+    //    yield return uwr.SendWebRequest();
 
-        if (uwr.result != UnityWebRequest.Result.Success)
-        {
-            Debug.Log("Error: " + uwr.error);
-        }
-        else
-        {
-            Debug.Log("GameState: " + uwr.downloadHandler.text);
+    //    if (uwr.result != UnityWebRequest.Result.Success)
+    //    {
+    //        Debug.Log("Error: " + uwr.error);
+    //    }
+    //    else
+    //    {
+    //        Debug.Log("GameState: " + uwr.downloadHandler.text);
 
-            switch (Int32.Parse(uwr.downloadHandler.text))
-            {
-                case 0:
-                    CurrentGameState = GameState.Initial;
-                    break;
-                case 1:
-                    CurrentGameState = GameState.EnteredGame;
-                    break;
-                case 2:
-                    CurrentGameState = GameState.GameActive;
-                    break;
-            }
-        }
-    }
+    //        switch (Int32.Parse(uwr.downloadHandler.text))
+    //        {
+    //            case 0:
+    //                CurrentGameState = GameState.Initial;
+    //                break;
+    //            case 1:
+    //                CurrentGameState = GameState.EnteredGame;
+    //                break;
+    //            case 2:
+    //                CurrentGameState = GameState.GameActive;
+    //                break;
+    //        }
+    //    }
+    //}
 }

@@ -18,7 +18,8 @@ public class ShotMarkersManager : MonoBehaviour
     {
         for (int i = 0; i < markers.Length; i++)
         {
-            markers[i].SetActive(false);
+            // markers[i].SetActive(false);
+            markers[i].GetComponentInChildren<MeshRenderer>().enabled = false;
         }
     }
 
@@ -70,7 +71,7 @@ public class ShotMarkersManager : MonoBehaviour
                 timerIsRunning = false;
                 coordinates = "";
                 runningTime = markingTime;
-            }      
+            }
         }
     }
 
