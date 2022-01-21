@@ -5,8 +5,8 @@ using UnityEngine;
 public class ShotMarkersManager : MonoBehaviour
 {
     // Marker display time
-    private float markingTime = 2;
-    private float runningTime = 2;
+    private float markingTime = 10;
+    private float runningTime = 10;
     bool timerIsRunning = false;
 
     public GameObject[] markers;
@@ -18,8 +18,8 @@ public class ShotMarkersManager : MonoBehaviour
     {
         for (int i = 0; i < markers.Length; i++)
         {
-            // markers[i].SetActive(false);
-            markers[i].GetComponentInChildren<MeshRenderer>().enabled = false;
+            markers[i].SetActive(false);
+            //markers[i].GetComponentInChildren<MeshRenderer>().enabled = false;
         }
     }
 
