@@ -117,7 +117,7 @@ public class CommunicationButtons : MonoBehaviour
         }
         else
         {
-            PlayerId = playerIdentifier;
+            GameManager.Instance.playerID = playerIdentifier;
             Debug.Log("Result: " + uwr.downloadHandler.text);
         }
     }
@@ -145,8 +145,9 @@ public class CommunicationButtons : MonoBehaviour
             CurrentGameState = GameState.EnteredGame;
 
             GameManager.Instance.gameName = ActiveGameName;
-            
-            SceneManager.LoadScene("AR-scene");
+            //GameManager.Instance.playerID = Guid.NewGuid().ToString();
+            //EnterExistingGame(GameManager.Instance.gameName);
+            //SceneManager.LoadScene("AR-scene");
 
             Debug.Log("Result: " + ActiveGameName);
         }
@@ -161,7 +162,7 @@ public class CommunicationButtons : MonoBehaviour
         Debug.Log($"Entering game '{gameId}'");
 
         WWWForm form = new WWWForm();
-        form.AddField("playerId", PlayerId.ToString());
+        form.AddField("playerId", GameManager.Instance.playerID.ToString());
         form.AddField("gameId", gameId);
 
         UnityWebRequest uwr = UnityWebRequest.Post(ENTERGAME_URL_ENDPOINT, form);

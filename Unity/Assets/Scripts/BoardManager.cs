@@ -10,6 +10,8 @@ public class BoardManager : MonoBehaviour
     // Start is called before the first frame update
 
     [SerializeField] private TMP_Text gameStateText;
+    [SerializeField] private TMP_InputField inputTileToShot;
+
 
     public GameState gameState;
     public enum GameState
@@ -45,6 +47,13 @@ public class BoardManager : MonoBehaviour
         
     }
 
+    public void SendCoordinatesToServer_Event()
+    {
+        string coordinate = inputTileToShot.text;
+        Debug.Log(coordinate);
+        StartCoroutine(SendCoordinatesToServer(coordinate));
+    }
+
     IEnumerator GetCurrentGameState()
     {
 
@@ -60,6 +69,30 @@ public class BoardManager : MonoBehaviour
         {
             Debug.Log("GameState: " + uwr.downloadHandler.text);
             gameState = (GameState)Int32.Parse(uwr.downloadHandler.text);
+        }
+    }
+
+    IEnumerator SendCoordinatesToServer(string coordinate)
+    {
+        Debug.Log("Sending coordinates");
+        Debug.Log(coordinate);
+        Debug.Log(GameManager.Instance.gameName);
+        Debug.Log(GameManager.Instance.playerID.ToString());
+        WWWForm form = new WWWForm();
+        form.AddField("coordinate", coordinate);
+        form.AddField("gameId", GameManager.Instance.gameName);
+        form.AddField("playerId", GameManager.Instance.playerID.ToString());
+
+        UnityWebRequest uwr = UnityWebRequest.Post(CommunicationButtons.COORDINATES_URL_ENDPOINT, form);
+        yield return uwr.SendWebRequest();
+
+        if (uwr.result != UnityWebRequest.Result.Success)
+        {
+            Debug.Log("Error: " + uwr.error);
+        }
+        else
+        {
+            Debug.Log("Result: " + uwr.downloadHandler.text);
         }
     }
 }
