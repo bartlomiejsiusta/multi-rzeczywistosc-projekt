@@ -25,6 +25,9 @@ public class BoardManager : MonoBehaviour
     public Dictionary<int, int> availableShips = new Dictionary<int, int>();
     int currentCount;
     int placedShips = 0;
+
+
+    public int[][][] mapState;
     void Start()
     {
         availableShips.Add(2, 2);
@@ -32,18 +35,20 @@ public class BoardManager : MonoBehaviour
         availableShips.Add(4, 2);
 
         StartCoroutine(GetCurrentGameState());
-            switch (gameState)
-            {
-                case GameState.Initial:
-                    gameStateText.text = "Faza rozstawiania";
-                    break;
-                case GameState.EnteredGame:
-                    gameStateText.text = "Faza hosta";
-                    break;
-                case GameState.GameActive:
-                    gameStateText.text = "Faza goœcia";
-                    break;
-            }
+        switch (gameState)
+        {
+            case GameState.Initial:
+                gameStateText.text = "Faza rozstawiania";
+                break;
+            case GameState.EnteredGame:
+                gameStateText.text = "Faza hosta";
+                break;
+            case GameState.GameActive:
+                gameStateText.text = "Faza goœcia";
+                break;
+        }
+
+        InvokeRepeating("updateGameStateAndMapState", 2.0f, 2.0f);
     }
         
     
@@ -51,10 +56,16 @@ public class BoardManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (gameState == GameState.Initial)
-        {
-           // shipSizeDropdown.gameObject.SetActive(true);
-        }
+        //if (gameState == GameState.Initial)
+        //{
+        //   // shipSizeDropdown.gameObject.SetActive(true);
+        //}
+    }
+
+
+    void updateGameStateAndMapState()
+    {
+        StartCoroutine(GetMapState());
     }
 
     public void SendCoordinatesToServer_Event()
@@ -91,6 +102,10 @@ public class BoardManager : MonoBehaviour
                 StartCoroutine(PlaceShip(selectedShip, coordinate));
                 placedShips++;
             }
+            //else
+            //{
+                // jezeli rozstawiono wszystkie statki zmien stan gry?
+            //}
             
         }
 
@@ -160,6 +175,24 @@ public class BoardManager : MonoBehaviour
         else
         {
             Debug.Log("Result: " + uwr.downloadHandler.text);
+        }
+    }
+
+    IEnumerator GetMapState()
+    {
+        string gameId = "abc";
+
+        UnityWebRequest uwr = UnityWebRequest.Get(CommunicationButtons.GET_MAP_STATE_ENDPOINT + "?gameId=" + gameId);
+        yield return uwr.SendWebRequest();
+
+        if (uwr.result != UnityWebRequest.Result.Success)
+        {
+            Debug.Log("Error: " + uwr.error);
+        }
+        else
+        {
+            Debug.Log("Result: " + uwr.downloadHandler.text);
+            mapState = Newtonsoft.Json.JsonConvert.DeserializeObject<int[][][]>(uwr.downloadHandler.text);
         }
     }
 }

@@ -16,6 +16,7 @@ public class CommunicationButtons : MonoBehaviour
     public const string ENTERGAME_URL_ENDPOINT = URL_BASE + "/Enter";
     public const string COORDINATES_URL_ENDPOINT = URL_BASE + "/PostCoordinates";
     public const string PLACE_SHIP_ENDPOINT = URL_BASE + "/PlaceShip";
+    public const string GET_MAP_STATE_ENDPOINT = URL_BASE + "/MapState";
     public const string CURRENT_GAME_STATE = URL_BASE + "/CurrentGameState";
     
     [SerializeField] private TMP_InputField inputGameNameComponent;
