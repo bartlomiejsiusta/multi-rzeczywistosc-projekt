@@ -18,7 +18,7 @@ public class CommunicationButtons : MonoBehaviour
     public const string PLACE_SHIP_ENDPOINT = URL_BASE + "/PlaceShip";
     public const string GET_MAP_STATE_ENDPOINT = URL_BASE + "/MapState";
     public const string CURRENT_GAME_STATE = URL_BASE + "/CurrentGameState";
-    
+
     [SerializeField] private TMP_InputField inputGameNameComponent;
 
     public string ActiveGameName = "";
@@ -175,9 +175,9 @@ public class CommunicationButtons : MonoBehaviour
         }
         else
         {
-            ActiveGameName = uwr.downloadHandler.text;
-            CurrentGameState = GameState.GameActive;
-            GameManager.Instance.gameName = ActiveGameName;
+            // ActiveGameName = uwr.downloadHandler.text;
+            // CurrentGameState = GameState.GameActive;
+            GameManager.Instance.gameName = gameId;
             SceneManager.LoadScene("AR-scene");
 
             Debug.Log("Result: " + ActiveGameName);

@@ -65,7 +65,8 @@ public class BoardManager : MonoBehaviour
 
     void updateGameStateAndMapState()
     {
-        StartCoroutine(GetMapState());
+        var gameId = GameManager.Instance.gameName;
+        StartCoroutine(GetMapState(gameId));
     }
 
     public void SendCoordinatesToServer_Event()
@@ -178,9 +179,8 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    IEnumerator GetMapState()
+    IEnumerator GetMapState(string gameId)
     {
-        string gameId = "abc";
 
         UnityWebRequest uwr = UnityWebRequest.Get(CommunicationButtons.GET_MAP_STATE_ENDPOINT + "?gameId=" + gameId);
         yield return uwr.SendWebRequest();
