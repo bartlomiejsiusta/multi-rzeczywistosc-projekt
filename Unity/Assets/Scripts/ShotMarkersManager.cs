@@ -26,10 +26,9 @@ public class ShotMarkersManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
         if (!coordinates.Equals(""))
         {
-            Debug.Log("if");
+            //Debug.Log("if");
             TurnOnMarker(coordinates);
             if (timerIsRunning)
             {

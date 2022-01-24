@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -6828,7 +6828,6 @@ GameObject:
   - component: {fileID: 699842179}
   - component: {fileID: 699842178}
   - component: {fileID: 699842176}
-  - component: {fileID: 699842177}
   m_Layer: 5
   m_Name: gameStateText
   m_TagString: Untagged
@@ -6925,22 +6924,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &699842177
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 699842175}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fa8c86622dbd1044792c7ee5798b82b0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gameStateText: {fileID: 699842176}
-  inputTileToShot: {fileID: 0}
-  shipSizeDropdown: {fileID: 0}
-  gameState: 0
 --- !u!222 &699842178
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -9464,6 +9447,35 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 238d1063af835b54e93b38286648cfc8, type: 3}
   m_PrefabInstance: {fileID: 1054668987}
   m_PrefabAsset: {fileID: 0}
+--- !u!21 &1063166190
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 'example_5-star_grayscaleMaterial
+
+    31412'
+  m_Shader: {fileID: 10752, guid: 0000000000000000f000000000000000, type: 0}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 5
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 81dc3c57dcdb4cce95a54b2e22c32473, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats: []
+    m_Colors:
+    - _Color: {r: 0.82089555, g: 0.82089555, b: 0.82089555, a: 1}
+  m_BuildTextureStacks: []
 --- !u!1001 &1065819449
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11831,7 +11843,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 1714650241}
+  - {fileID: 1063166190}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -15762,35 +15774,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 238d1063af835b54e93b38286648cfc8, type: 3}
   m_PrefabInstance: {fileID: 1706014291}
   m_PrefabAsset: {fileID: 0}
---- !u!21 &1714650241
-Material:
-  serializedVersion: 6
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 'example_5-star_grayscaleMaterial
-
-    19528'
-  m_Shader: {fileID: 10752, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: 
-  m_LightmapFlags: 5
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 81dc3c57dcdb4cce95a54b2e22c32473, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Floats: []
-    m_Colors:
-    - _Color: {r: 0.82089555, g: 0.82089555, b: 0.82089555, a: 1}
-  m_BuildTextureStacks: []
 --- !u!1 &1726829623 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 238d1063af835b54e93b38286648cfc8, type: 3}
@@ -18341,7 +18324,9 @@ MonoBehaviour:
   gameStateText: {fileID: 699842176}
   inputTileToShot: {fileID: 1239803631}
   shipSizeDropdown: {fileID: 162686756}
-  gameState: 0
+  overrideIDs: 1
+  gameID: YS70UT3847
+  playerGuid: dacc3390-6ee4-4478-9993-f73c4006f828
 --- !u!4 &2055089232
 Transform:
   m_ObjectHideFlags: 0

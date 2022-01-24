@@ -58,7 +58,7 @@ public class CommunicationButtons : MonoBehaviour
                     clickPosition = hit.collider.gameObject.name;
                 }
 
-                Debug.Log(clickPosition);
+                // Debug.Log(clickPosition);
                 // StartCoroutine(SendCoordinatesToServer(clickPosition));
             }
         }
@@ -150,7 +150,8 @@ public class CommunicationButtons : MonoBehaviour
             //EnterExistingGame(GameManager.Instance.gameName);
             //SceneManager.LoadScene("AR-scene");
 
-            Debug.Log("Result: " + ActiveGameName);
+            //Debug.Log("Result: " + ActiveGameName);
+            yield return EnterExistingGame(ActiveGameName);
         }
     }
 
