@@ -18324,9 +18324,10 @@ MonoBehaviour:
   gameStateText: {fileID: 699842176}
   inputTileToShot: {fileID: 1239803631}
   shipSizeDropdown: {fileID: 162686756}
-  overrideIDs: 0
-  gameID: 
-  playerGuid: 
+  stateQueryTime: 5
+  overrideIds: 0
+  gameId: 
+  playerId: 
 --- !u!4 &2055089232
 Transform:
   m_ObjectHideFlags: 0

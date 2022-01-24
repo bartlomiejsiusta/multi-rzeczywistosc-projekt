@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -7,16 +6,16 @@ using UnityEngine.Networking;
 
 public class BoardManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-
     [SerializeField] private TMP_Text gameStateText;
     [SerializeField] private TMP_InputField inputTileToShot;
     [SerializeField] private TMP_Dropdown shipSizeDropdown;
 
+    [SerializeField] private float stateQueryTime = 3.0f;
+
     #if UNITY_EDITOR
-    [SerializeField] private bool overrideIDs;
-    [SerializeField] private string gameID;
-    [SerializeField] private string playerGuid;
+    [SerializeField] private bool overrideIds;
+    [SerializeField] private string gameId;
+    [SerializeField] private string playerId;
     #endif
 
     private GameState gameState;
@@ -24,60 +23,30 @@ public class BoardManager : MonoBehaviour
     {
         PlacingShips = 0,
         HostTurn = 1,
-        GuestTurn = 2
+        GuestTurn = 2,
     }
 
-    public Dictionary<int, int> availableShips = new Dictionary<int, int>();
-    int currentCount;
-    int placedShips = 0;
+    private Dictionary<int, int> availableShips = new Dictionary<int, int>();
+    private int currentCount;
+    private int placedShips;
 
-    public int[][][] mapState;
+    private int[][][] mapState;
 
-    void Start()
+    private void Awake()
     {
         availableShips.Add(2, 2);
         availableShips.Add(3, 2);
         availableShips.Add(4, 2);
 
         StartCoroutine(GetCurrentGameState());
-        switch (gameState)
-        {
-            case GameState.PlacingShips:
-                gameStateText.text = "Faza rozstawiania";
-                break;
-            case GameState.HostTurn:
-                gameStateText.text = "Faza hosta";
-                break;
-            case GameState.GuestTurn:
-                gameStateText.text = "Faza goœcia";
-                break;
-        }
-
-        StartCoroutine(GetMapState());
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        //if (gameState == GameState.Initial)
-        //{
-        //   // shipSizeDropdown.gameObject.SetActive(true);
-        //}
-    }
-
-
-    void updateGameStateAndMapState()
-    {
         StartCoroutine(GetMapState());
     }
 
     public void SendCoordinatesToServer_Event()
     {
         string coordinate = inputTileToShot.text;
-        int selectedShip;
-        
-        Debug.Log(coordinate);
-        if(gameState != GameState.PlacingShips)
+
+        if (gameState != GameState.PlacingShips)
         {
             StartCoroutine(SendCoordinatesToServer(coordinate));
         }
@@ -85,12 +54,8 @@ public class BoardManager : MonoBehaviour
         {   
             if (placedShips <= 6)
             {
-                Debug.Log(string.Join(", ", availableShips.Values));
-                //selectedShip = shipSizeDropdown.value;
-                selectedShip = Int32.Parse(shipSizeDropdown.options[shipSizeDropdown.value].text);
-                Debug.Log(selectedShip);
+                int selectedShip = int.Parse(shipSizeDropdown.options[shipSizeDropdown.value].text);
                 availableShips.TryGetValue(selectedShip, out currentCount);
-                Debug.Log(currentCount);
                 availableShips[selectedShip] = currentCount - 1;
 
                 if (currentCount < 1)
@@ -98,130 +63,143 @@ public class BoardManager : MonoBehaviour
                     // update dropdown text?
                     availableShips.Remove(selectedShip);
                     shipSizeDropdown.options.RemoveAt(shipSizeDropdown.value);
-
                 }
-                Debug.Log(string.Join(", ", availableShips.Values));
 
                 StartCoroutine(PlaceShip(selectedShip, coordinate));
                 placedShips++;
             }
-            //else
-            //{
-                // jezeli rozstawiono wszystkie statki zmien stan gry?
-            //}
-            
         }
-
     }
 
     IEnumerator GetCurrentGameState()
     {
-        string gameID = GameManager.Instance.gameName;
+        string gameId = GameManager.Instance.gameName;
         #if UNITY_EDITOR
-        if (overrideIDs)
+        if (overrideIds)
         {
-            gameID = this.gameID;
+            gameId = this.gameId;
         }
         #endif
-        UnityWebRequest uwr = UnityWebRequest.Get(CommunicationButtons.CURRENT_GAME_STATE + "?gameId=" + gameID);
+
+        Debug.Log($"Getting game state {gameId}");
+
+        UnityWebRequest uwr = UnityWebRequest.Get(CommunicationButtons.CURRENT_GAME_STATE + "?gameId=" + gameId);
         yield return uwr.SendWebRequest();
 
         if (uwr.result != UnityWebRequest.Result.Success)
         {
-            Debug.Log("Error: " + uwr.error);
+            Debug.LogError($"{uwr.error}\n{uwr.downloadHandler.text}");
         }
         else
         {
-            Debug.Log("GameState: " + uwr.downloadHandler.text);
             gameState = (GameState)int.Parse(uwr.downloadHandler.text);
+            Debug.Log("Success getting game state: " + gameState.ToString());
+
+            switch (gameState)
+            {
+            case GameState.PlacingShips:
+                gameStateText.text = "Faza rozstawiania";
+                break;
+            case GameState.HostTurn:
+                gameStateText.text = "Tura hosta";
+                break;
+            case GameState.GuestTurn:
+                gameStateText.text = "Tura goœcia";
+                break;
+            }
         }
     }
 
     IEnumerator SendCoordinatesToServer(string coordinate)
     {
-        string gameID = GameManager.Instance.gameName;
-        string playerGuid = GameManager.Instance.playerID.ToString();
+        string gameId = GameManager.Instance.gameName;
+        string playerId = GameManager.Instance.playerID.ToString();
         #if UNITY_EDITOR
-        if (overrideIDs)
+        if (overrideIds)
         {
-            gameID = this.gameID;
-            playerGuid = this.playerGuid;
+            gameId = this.gameId;
+            playerId = this.playerId;
         }
         #endif
 
-        Debug.Log($"Sending coordinates, {coordinate}, {gameID}, {playerGuid}");
+        Debug.Log($"Sending coordinates, {coordinate}, {gameId}, {playerId}");
+
         WWWForm form = new WWWForm();
         form.AddField("coordinate", coordinate);
-        form.AddField("gameId", gameID);
-        form.AddField("playerId", playerGuid);
+        form.AddField("gameId", gameId);
+        form.AddField("playerId", playerId);
 
         UnityWebRequest uwr = UnityWebRequest.Post(CommunicationButtons.COORDINATES_URL_ENDPOINT, form);
         yield return uwr.SendWebRequest();
 
         if (uwr.result != UnityWebRequest.Result.Success)
         {
-            Debug.Log("Error: " + uwr.error);
+            Debug.LogError($"{uwr.error}\n{uwr.downloadHandler.text}");
         }
         else
         {
-            Debug.Log("Success: " + uwr.downloadHandler.text);
+            Debug.Log("Success sending coordinates: " + uwr.downloadHandler.text);
         }
     }
 
     IEnumerator PlaceShip(int shipSize, string coordinate)
     {
-        string gameID = GameManager.Instance.gameName;
-        string playerGuid = GameManager.Instance.playerID.ToString();
+        string gameId = GameManager.Instance.gameName;
+        string playerId = GameManager.Instance.playerID.ToString();
         #if UNITY_EDITOR
-        if (overrideIDs)
+        if (overrideIds)
         {
-            gameID = this.gameID;
-            playerGuid = this.playerGuid;
+            gameId = this.gameId;
+            playerId = this.playerId;
         }
         #endif
-        Debug.Log($"Placing ship at {coordinate}, {gameID}, {playerGuid}");
+
+        Debug.Log($"Placing ship at {coordinate}, {gameId}, {playerId}");
+
         WWWForm form = new WWWForm();
         form.AddField("shipSize", shipSize);
         form.AddField("coordinate", coordinate);
-        form.AddField("gameId", gameID);
-        form.AddField("playerId", playerGuid);
+        form.AddField("gameId", gameId);
+        form.AddField("playerId", playerId);
 
         UnityWebRequest uwr = UnityWebRequest.Post(CommunicationButtons.PLACE_SHIP_ENDPOINT, form);
         yield return uwr.SendWebRequest();
 
         if (uwr.result != UnityWebRequest.Result.Success)
         {
-            Debug.Log("Error: " + uwr.error);
+            Debug.LogError($"{uwr.error}\n{uwr.downloadHandler.text}");
         }
         else
         {
-            Debug.Log("Success: " + uwr.downloadHandler.text);
+            Debug.Log("Success placing ship: " + uwr.downloadHandler.text);
         }
     }
 
     IEnumerator GetMapState()
     {
-        var wait = new WaitForSeconds(2.0f);
+        WaitForSeconds wait = new WaitForSeconds(stateQueryTime);
         while (true)
         {
-            string gameID = GameManager.Instance.gameName;
+            string gameId = GameManager.Instance.gameName;
             #if UNITY_EDITOR
-            if (overrideIDs)
+            if (overrideIds)
             {
-                gameID = this.gameID;
+                gameId = this.gameId;
             }
             #endif
 
-            UnityWebRequest uwr = UnityWebRequest.Get(CommunicationButtons.GET_MAP_STATE_ENDPOINT + "?gameId=" + gameID);
+            Debug.Log($"Getting map state {gameId}");
+
+            UnityWebRequest uwr = UnityWebRequest.Get(CommunicationButtons.GET_MAP_STATE_ENDPOINT + "?gameId=" + gameId);
             yield return uwr.SendWebRequest();
 
             if (uwr.result != UnityWebRequest.Result.Success)
             {
-                Debug.Log("Error: " + uwr.error);
+                Debug.LogError($"{uwr.error}\n{uwr.downloadHandler.text}");
             }
             else
             {
-                //Debug.Log("Result: " + uwr.downloadHandler.text);
+                Debug.Log("Success downloading map state");
                 mapState = Newtonsoft.Json.JsonConvert.DeserializeObject<int[][][]>(uwr.downloadHandler.text);
             }
 
