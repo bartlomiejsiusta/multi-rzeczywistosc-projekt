@@ -6,7 +6,10 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/AR-scene.unity
+    path: Assets/Scenes/Menu.unity
+    guid: 4f34c011a23680144b80335e33589b2b
+  - enabled: 1
+    path: Assets/Scenes/Game.unity
     guid: 16ba6c1748db6334384dfe9c031c1e31
   m_configObjects:
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 65cc98c59d042b441a457ccddd562885, type: 2}
