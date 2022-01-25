@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class BoardManager : MonoBehaviour
 {
+    [SerializeField] private GameObject[] tales;
+
     [SerializeField] private TMP_Text gameStateText;
     [SerializeField] private TMP_Text gameIdText;
     [SerializeField] private TMP_InputField coordinateInput;
@@ -60,7 +62,7 @@ public class BoardManager : MonoBehaviour
                     gameStateText.text = "Tura hosta";
                     break;
                 case GameState.GuestTurn:
-                    gameStateText.text = "Tura goœcia";
+                    gameStateText.text = "Tura goï¿½cia";
                     break;
                 }
             });
