@@ -77,7 +77,7 @@ public class BoardManager : MonoBehaviour
                     gameStateText.text = "Tura hosta";
                     break;
                 case GameState.GuestTurn:
-                    gameStateText.text = "Tura go�cia";
+                    gameStateText.text = "Tura goscia";
                     break;
                 }
             });
