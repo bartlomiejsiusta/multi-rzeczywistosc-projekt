@@ -5,7 +5,8 @@ using UnityEngine.UI;
 
 public class BoardManager : MonoBehaviour
 {
-    [SerializeField] private GameObject[] tales;
+    public GameObject[] tiles;
+    public GameObject[] ships;
 
     [SerializeField] private TMP_Text gameStateText;
     [SerializeField] private TMP_Text gameIdText;
@@ -26,6 +27,10 @@ public class BoardManager : MonoBehaviour
     private GameState gameState;
     private int[][][] mapState;
 
+    private int shipIndex = 99;
+    private string shipCoordinate = "";
+    int size2 = 2, size3 = 2, size4 = 2;
+
     private void Awake()
     {
         wait = new WaitForSeconds(stateQueryTime);
@@ -36,6 +41,16 @@ public class BoardManager : MonoBehaviour
         StartCoroutine(GetMapStateCoroutine());
 
         fireButton.onClick.AddListener(() => StartCoroutine(Fire()));
+    }
+
+    private void Update()
+    {
+        if((shipIndex!=99) & (!shipCoordinate.Equals(""))){
+            setShipsPosition(shipIndex, shipCoordinate);
+            shipIndex = 99;
+            shipCoordinate = "";
+        }
+        
     }
 
     IEnumerator GetCurrentGameStateCoroutine()
@@ -86,8 +101,6 @@ public class BoardManager : MonoBehaviour
             yield return Communication.GetMapState(gameId, (mapState) =>
             {
                 this.mapState = mapState;
-
-                // TODO Update board tiles
             });
 
             yield return wait;
@@ -112,11 +125,55 @@ public class BoardManager : MonoBehaviour
             int shipSize = int.Parse(shipSizeDropdown.options[shipSizeDropdown.value].text);
             yield return Communication.PlaceShip(coordinate, gameId, playerId, shipSize);
 
-            // TODO Place ship on board
+            
+            if(shipSize == 2 & size2 == 2)
+            {
+                shipIndex = 0;
+                size2--;
+            } else if(shipSize == 2 & size2 == 1)
+            {
+                shipIndex = 1;
+            } else if(shipSize == 3 & size3 == 2){
+                shipIndex = 2;
+                size3--;
+            } else if(shipSize == 3 & size3 == 1){
+                shipIndex = 3;
+            } else if(shipSize == 4 & size4 == 2){
+                shipIndex = 4;
+                size4--;
+            } else {
+                shipIndex = 5;
+            }
+
+            shipCoordinate = coordinate;
         }
         else
         {
             yield return Communication.PostCoordinates(coordinate, gameId, playerId);
         }
     }
+
+    private void setShipsPosition(int shipIndex, string shipCoordinate)
+    {
+        for(int i = 0; i<tiles.Length; i++)
+        {
+            if(tiles[i].name.Equals(shipCoordinate.ToLower())){
+                Vector3 tilePosition = tiles[i].transform.localPosition;
+                tilePosition.x = tilePosition.x + 0.93f;
+                tilePosition.y = tilePosition.y + 0.18f;
+                if(shipIndex == 0 | shipIndex == 1){
+                    tilePosition.z = tilePosition.z - 0.1f;
+                } else if(shipIndex == 2 | shipIndex == 3){
+                    tilePosition.z = tilePosition.z - 0.28f;
+                } else if(shipIndex == 4 | shipIndex == 5){
+                    tilePosition.z = tilePosition.z - 0.47f;
+                }
+                
+                Debug.Log(tilePosition);
+                ships[shipIndex].transform.localPosition = tilePosition;
+            }
+        }
+    }
 }
+
+
