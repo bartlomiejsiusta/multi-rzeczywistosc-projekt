@@ -5,8 +5,9 @@ using UnityEngine.UI;
 
 public class BoardManager : MonoBehaviour
 {
-    public GameObject[] tiles;
-    public GameObject[] ships;
+    [SerializeField] private GameObject[] tiles;
+    [SerializeField] private GameObject[] ships;
+    [SerializeField] private ShotMarkersManager shotMarkersManager;
 
     [SerializeField] private TMP_Text gameStateText;
     [SerializeField] private TMP_Text gameIdText;
@@ -149,6 +150,7 @@ public class BoardManager : MonoBehaviour
         }
         else
         {
+            shotMarkersManager.coordinates = coordinate;
             yield return Communication.PostCoordinates(coordinate, gameId, playerId);
         }
     }

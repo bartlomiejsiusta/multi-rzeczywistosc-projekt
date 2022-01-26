@@ -5,30 +5,30 @@ using UnityEngine;
 public class ShotMarkersManager : MonoBehaviour
 {
     // Marker display time
-    private float markingTime = 10;
-    private float runningTime = 10;
+    private float markingTime = 3;
+    private float runningTime = 3;
     bool timerIsRunning = false;
 
     public GameObject[] markers;
 
     //ustawianie wspolrzednych
-    public string coordinates = "a5";
+    public string coordinates;
     // Start is called before the first frame update
     void Start()
     {
+        coordinates = "";
         for (int i = 0; i < markers.Length; i++)
         {
             markers[i].SetActive(false);
-            //markers[i].GetComponentInChildren<MeshRenderer>().enabled = false;
         }
     }
 
     // Update is called once per frame
     void Update()
     {
+        
         if (!coordinates.Equals(""))
         {
-            //Debug.Log("if");
             TurnOnMarker(coordinates);
             if (timerIsRunning)
             {
@@ -38,7 +38,6 @@ public class ShotMarkersManager : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("Time has run out!");
                     TurnOffMarker();
                 }
             }
@@ -47,9 +46,10 @@ public class ShotMarkersManager : MonoBehaviour
 
     void TurnOnMarker(string coordinates)
     {
+        
         for (int i = 0; i < markers.Length; i++)
         {
-            if (markers[i].name.Equals(coordinates))
+            if (markers[i].name.Equals(coordinates.ToLower()))
             {
                 if (markers[i].activeInHierarchy == false)
                 {
