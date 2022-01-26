@@ -294,7 +294,7 @@ namespace CommunicationServer.Controllers
                 }
                 else if (!hostsShips && guestsShips)
                 {
-                    CurrentGameState = GameStates.EndGameHostWon;
+                    CurrentGameState = GameStates.EndGameGuestWon;
                 }
             }
         }

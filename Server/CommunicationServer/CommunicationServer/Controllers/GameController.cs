@@ -221,5 +221,26 @@ namespace CommunicationServer.Controllers
 
             return Ok(game.CurrentGameState);
         }
+
+        /// <summary>
+        /// Zwraca informacje o grze
+        /// </summary>
+        /// <param name="gameId">Identyfikator gry</param>
+        /// <returns></returns>
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpGet("GameInfo")]
+        public ActionResult<GameInfo> GameInfo(string gameId)
+        {
+            var game = ActiveGames[gameId];
+
+            return new GameInfo()
+            {
+                GameState = game.CurrentGameState,
+                GuestShipsToPlace = game.GuestShipsToPlace,
+                HostShipsToPlace = game.HostShipsToPlace,
+                MapSize = GameState.MAP_SIZE,
+                MovesLeft = game.MovesLeft
+            };
+        }
     }
 }
