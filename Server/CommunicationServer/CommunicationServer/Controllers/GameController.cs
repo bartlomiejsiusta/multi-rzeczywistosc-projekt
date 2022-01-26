@@ -235,6 +235,8 @@ namespace CommunicationServer.Controllers
 
             return new GameInfo()
             {
+                HostPlayerId = game.HostPlayerId,
+                GuestPlayerId = game.GuestPlayerId,
                 GameState = game.CurrentGameState,
                 GuestShipsToPlace = game.GuestShipsToPlace,
                 HostShipsToPlace = game.HostShipsToPlace,
