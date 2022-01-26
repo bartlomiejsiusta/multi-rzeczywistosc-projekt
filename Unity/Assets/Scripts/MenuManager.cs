@@ -27,6 +27,7 @@ public class MenuManager : MonoBehaviour
     {
         yield return Communication.Create((gameId) => GameManager.gameId = gameId);
         yield return Communication.Enter(GameManager.playerId, GameManager.gameId);
+        GameManager.playerIndex = 0;
         SceneManager.LoadScene("Game");
     }
 
@@ -35,6 +36,7 @@ public class MenuManager : MonoBehaviour
         string gameId = gameIdInputField.text;
         GameManager.gameId = gameId;
         yield return Communication.Enter(GameManager.playerId, gameId);
+        GameManager.playerIndex = 1;
         SceneManager.LoadScene("Game");
     }
 }
