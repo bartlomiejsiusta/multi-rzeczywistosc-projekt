@@ -1,4 +1,5 @@
 ﻿using CommunicationServer.Exceptions;
+using CommunicationServer.Structures;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -160,25 +161,25 @@ namespace CommunicationServer.Controllers
         /// <param name="gameId">Identyfikator gry</param>
         /// <param name="playerId">Guid gracza wykonującego ruch</param>
         /// <response code="400">Nieprawidłowy ruch</response>
-        /// <response code="200">Ruch zapisany</response>
+        /// <response code="200">Ruch zapisany. Zwraca strukturę ShotResult</response>
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost("PostCoordinates")]
-        public ActionResult PostCoordinates([FromForm] string coordinate, [FromForm] string gameId, [FromForm] Guid playerId)
+        public ActionResult<ShotResult> PostCoordinates([FromForm] string coordinate, [FromForm] string gameId, [FromForm] Guid playerId)
         {
             try
             {
                 var game = ActiveGames[gameId];
                 var type = game.GetPlayerType(playerId);
 
-                game.PerformMove(type, coordinate);
+                ShotResult shotResult = game.PerformMove(type, coordinate);
+
+                return Ok(shotResult);
             }
             catch (GameException e)
             {
                 return BadRequest(e.Message);
             }
-
-            return Ok();
         }
 
         /// <summary>

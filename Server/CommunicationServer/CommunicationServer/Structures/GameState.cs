@@ -1,4 +1,5 @@
 ﻿using CommunicationServer.Exceptions;
+using CommunicationServer.Structures;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -156,21 +157,25 @@ namespace CommunicationServer.Controllers
             _movesLeft--;
         }
 
-        public void PerformMove(PlayerType playerType, string coordinates)
+        public ShotResult PerformMove(PlayerType playerType, string coordinates)
         {
             (char letter, int secondCoord) = CoordinatesConverter(coordinates);
 
             int firstCoord = LetterToNumberEquivalent(letter);
 
+            StateOfCoordinate shotResult;
+
             if (CurrentGameState == GameStates.HostTurn && playerType == PlayerType.Host)
             {
                 Shoot(GuestMap, firstCoord, secondCoord);
                 CurrentGameState = GameStates.GuestTurn;
+                shotResult = GuestMap[firstCoord][secondCoord];
             }
             else if (CurrentGameState == GameStates.GuestTurn && playerType == PlayerType.Guest)
             {
                 Shoot(HostMap, firstCoord, secondCoord);
                 CurrentGameState = GameStates.HostTurn;
+                shotResult = HostMap[firstCoord][secondCoord];
             }
             else
             {
@@ -178,6 +183,12 @@ namespace CommunicationServer.Controllers
             }
 
             CheckIfSomeoneWon();
+
+            return new ShotResult {
+                X = firstCoord,
+                Y = secondCoord,
+                CurrentStateOfMapPosition = shotResult
+            };
         }
 
         public void PlaceShip(PlayerType playerType, string coordinates, int shipSize)
